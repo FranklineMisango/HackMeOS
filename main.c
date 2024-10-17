@@ -79,6 +79,7 @@ void update_flags(uint16_t r0){
     }else{
         reg[R_COND] = FLAG_POS;
     }
+    printf("Updated flags: R_COND = %d\n", reg[R_COND]);
 }
 
 uint16_t sign_extend(uint16_t x, int bit_count)
@@ -117,11 +118,13 @@ uint16_t mem_read(uint16_t addr){
         }
     }
     uint16_t val = memory[addr];
+    printf("Memory read: addr = 0x%04x, val = 0x%04x\n", addr, val);
     return val;
 }
 
 void mem_write(uint16_t addr, uint16_t val){
     memory[addr] = val;
+    printf("Memory write: addr = 0x%04x, val = 0x%04x\n", addr, val);
 }
 
 int load_program_from_file(const char* file){
@@ -140,6 +143,7 @@ int load_program_from_file(const char* file){
         *i = swap16(*i);
         ++i;
     }
+    printf("Program loaded from file: %s\n", file);
     return 1;
 }
 
@@ -158,6 +162,7 @@ void op_add(uint16_t instr){
         reg[dr] = reg[sr1] + reg[sr2];
     }
     update_flags(dr);
+    printf("Executed ADD: dr = %d, sr1 = %d, imm_flag = %d\n", dr, sr1, imm_flag);
 }
 
 void op_and(uint16_t instr){
@@ -171,6 +176,7 @@ void op_and(uint16_t instr){
         reg[dr] = reg[sr1] & reg[(instr & 0x7)];
     } 
     update_flags(dr);
+    printf("Executed AND: dr = %d, sr1 = %d, imm_flag = %d\n", dr, sr1, imm_flag);
 }
 
 void op_br(uint16_t ins){
@@ -179,11 +185,13 @@ void op_br(uint16_t ins){
     if(f & reg[R_COND]){
         reg[R_PC] += pc_offset;
     }
+    printf("Executed BR: f = %d, pc_offset = %d\n", f, pc_offset);
 }
 
 void op_jmp(uint16_t ins){
     uint16_t r =  (ins >> 6) & 0x7;
     reg[R_PC] = reg[r];
+    printf("Executed JMP: r = %d\n", r);
 }
 
 void op_jsr(uint16_t ins){
@@ -196,6 +204,7 @@ void op_jsr(uint16_t ins){
         // jssr
         reg[R_PC] = (ins >> 6) & 0x7;
     }
+    printf("Executed JSR: f = %d\n", f);
 }
 
 void op_ld(uint16_t ins){
@@ -203,6 +212,7 @@ void op_ld(uint16_t ins){
     uint16_t addr = sign_extend((ins & 0x1ff),9) + reg[R_PC];
     reg[dr] = mem_read(addr);
     update_flags(dr);
+    printf("Executed LD: dr = %d, addr = 0x%04x\n", dr, addr);
 }
 
 void op_ldi(uint16_t ins){
@@ -210,6 +220,7 @@ void op_ldi(uint16_t ins){
     uint16_t addr = sign_extend((ins & 0x1ff),9) + reg[R_PC];
     reg[dr] = mem_read(mem_read(addr));
     update_flags(dr);
+    printf("Executed LDI: dr = %d, addr = 0x%04x\n", dr, addr);
 }
 
 void op_ldr(uint16_t ins){
@@ -217,6 +228,7 @@ void op_ldr(uint16_t ins){
     uint16_t addr = reg[(ins>>6) & 0x7] + sign_extend(ins & 0x3f,6);
     reg[dr] = mem_read(addr);
     update_flags(dr);
+    printf("Executed LDR: dr = %d, addr = 0x%04x\n", dr, addr);
 }
 
 void op_lea(uint16_t ins){
@@ -224,6 +236,7 @@ void op_lea(uint16_t ins){
     uint16_t addr = sign_extend(ins & 0x1ff,9) + reg[R_PC];
     reg[dr] = addr;
     update_flags(dr);
+    printf("Executed LEA: dr = %d, addr = 0x%04x\n", dr, addr);
 }
 
 void op_not(uint16_t ins){
@@ -231,6 +244,7 @@ void op_not(uint16_t ins){
     uint16_t sr = (ins >> 6) & 0x7;
     reg[dr] = ~reg[sr];
     update_flags(dr);
+    printf("Executed NOT: dr = %d, sr = %d\n", dr, sr);
 }
 
 void op_st(uint16_t ins){
@@ -238,7 +252,7 @@ void op_st(uint16_t ins){
     uint16_t addr = sign_extend(ins & 0x1ff, 9) + reg[R_PC];
     uint16_t val = reg[sr];
     mem_write(addr,val);
-
+    printf("Executed ST: sr = %d, addr = 0x%04x, val = 0x%04x\n", sr, addr, val);
 }
 
 void op_sti(uint16_t ins){
@@ -246,6 +260,7 @@ void op_sti(uint16_t ins){
     uint16_t addr = sign_extend(ins & 0x1ff, 9) + reg[R_PC];
     uint16_t val = reg[sr];
     mem_write(mem_read(addr),val);
+    printf("Executed STI: sr = %d, addr = 0x%04x, val = 0x%04x\n", sr, addr, val);
 }
 
 void op_str(uint16_t ins){
@@ -253,6 +268,7 @@ void op_str(uint16_t ins){
     uint16_t br = (ins >> 6) & 0x7;
     uint16_t addr = reg[br] + sign_extend(ins & 0x3f,6);
     mem_write(addr, reg[sr]);
+    printf("Executed STR: sr = %d, br = %d, addr = 0x%04x\n", sr, br, addr);
 }
 
 void trap_puts(){
@@ -262,16 +278,19 @@ void trap_puts(){
         ++c;
     }
     fflush(stdout);
+    printf("Executed TRAP_PUTS\n");
 }
 
 void trap_getc(){
     uint16_t c = (uint16_t)getchar();
     reg[R_R0] = c;
+    printf("Executed TRAP_GETC: c = %c\n", c);
 }
 
 void trap_out(){
     putc((char)reg[R_R0],stdout);
     fflush(stdout);
+    printf("Executed TRAP_OUT: c = %c\n", (char)reg[R_R0]);
 }
 
 void trap_putsp(){
@@ -288,6 +307,7 @@ void trap_putsp(){
         ++c;
     } 
     fflush(stdout);
+    printf("Executed TRAP_PUTSP\n");
 }
 
 
@@ -322,11 +342,11 @@ void setup(){
 
 int main(int argc, const char* argv[]){
     if(argc != 2){
-        printf("Usage: ./lc3 <program>");
+        printf("Usage: ./lc3 <program>\n");
         exit(2);
     }
     if(!load_program_from_file(argv[1])){
-        printf("Unable to load program from file %s",argv[2]);
+        printf("Unable to load program from file %s\n",argv[1]);
         exit(2);
     }
 
@@ -336,6 +356,7 @@ int main(int argc, const char* argv[]){
     {
         uint16_t instr = mem_read(reg[R_PC]++);
         uint16_t op = instr >> 12;
+        printf("Fetched instruction: 0x%04x, op = 0x%x\n", instr, op);
         switch (op)
         {
         case OP_ADD:
