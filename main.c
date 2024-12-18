@@ -342,7 +342,7 @@ void setup(){
 
 int main(int argc, const char* argv[]){
     if(argc != 2){
-        printf("Usage: ./lc3 <program>\n");
+        printf("Usage: ./main <program>\n");
         exit(2);
     }
     if(!load_program_from_file(argv[1])){
