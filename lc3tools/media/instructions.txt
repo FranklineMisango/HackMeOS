@@ -1,0 +1,15 @@
+          ___            _                   _    _                      
+         |_ _| _ _   ___| |_  _ _  _  _  __ | |_ (_) ___  _ _   ___      
+          | | | ' \ (_-<|  _|| '_|| || |/ _||  _|| |/ _ \| ' \ (_-<      
+         |___||_||_|/__/ \__||_|   \_,_|\__| \__||_|\___/|_||_|/__/      
+                                                                         
+  |'-'-'|           i - displays this screne                        __   
+  |_____|           s - saves the current game                     /  \  
+   |===|            t - toggles mouse/keyboard input               \__/  
+   |   |            u - undo the last move                        /____\ 
+   |   |            q - quits the game                             |  |  
+   |   |            z - exits out of piece selection               |  |  
+   )___(                                                           |__|  
+  (=====)   Click the piece you want to move and then click a     (====) 
+  }====={   destination spot. If using keyboard, first enter      }===={ 
+ (_______)  the initial spot (e.g. e7) and then the destination  (______)
